@@ -1,0 +1,18 @@
+# Google Gemini 2.5 Flash Lite via Portkey gateway
+task_lm: "openai/@google/gemini-2.5-flash-lite"
+reflection_lm: "openai/@google/gemini-2.5-flash-lite"
+api_base: "https://api.portkey.ai/v1"
+api_key_env: PORTKEY_API_KEY
+num_threads: 16
+eval_num_threads: 16
+
+# OpenEvolve evolution LLM (uses same model/gateway)
+openevolve_llm:
+  api_base: "https://api.portkey.ai/v1"
+  models:
+    - name: "@google/gemini-2.5-flash-lite"
+      weight: 1.0
+  temperature: 0.7
+  max_tokens: 8192
+  timeout: 150
+  retries: 3

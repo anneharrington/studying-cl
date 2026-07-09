@@ -1,0 +1,6 @@
+train_path: data/sciknoweval_sdpo/chemistry_train.jsonl
+eval_path: data/sciknoweval_sdpo/chemistry_test.jsonl
+train_n: 500
+val_n: 50
+eval_n: 50
+seed: 42

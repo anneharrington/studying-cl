@@ -1,0 +1,7 @@
+[GENERAL_INSTRUCTIONS]
+Answer the following scientific chemistry question.
+[/GENERAL_INSTRUCTIONS]
+
+{question}
+
+Think step by step, then provide your final answer on its own line after "Answer:".

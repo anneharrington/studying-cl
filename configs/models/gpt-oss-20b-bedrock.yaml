@@ -1,0 +1,51 @@
+# OpenAI GPT-OSS-20B via AWS Bedrock Converse API.
+#
+# Routing convention: `bedrock:<modelId>` is intercepted in
+# methods/prompt_based/gepa_method.py::_build_lm and routed through
+# methods/prompt_based/bedrock_lm.py::BedrockChatLM. Litellm is bypassed
+# — the Bedrock Converse envelope (separate `system` array, content blocks,
+# `inferenceConfig`) doesn't match OpenAI's flat chat-completions shape.
+#
+# Reasoning behavior (different from Qwen3):
+#   - GPT-OSS-20B is a reasoning model. Bedrock returns reasoning text in a
+#     separate `reasoningContent` block, NOT inline as `<think>...</think>`.
+#   - bedrock_lm._extract_text only collects `text` blocks, so reasoning is
+#     auto-dropped from the visible content. The `/no_think` directive
+#     (Qwen3-specific) is meaningless here, so we set thinking: true and skip
+#     the injection.
+#   - If max_tokens is too tight, reasoning can consume the whole budget and
+#     leave no `text` block — same empty-output failure mode as Qwen3
+#     thinking-mode, different root cause. Budgets below are sized for it.
+#
+# Auth: AWS_BEARER_TOKEN_BEDROCK env var (boto3 picks it up; no IAM grant
+# needed). Region defaults to us-east-1.
+#
+# Spec (from Bedrock model card): 128K context window, 16K max output tokens.
+
+task_lm: "bedrock:openai.gpt-oss-20b-1:0"
+reflection_lm: "bedrock:openai.gpt-oss-20b-1:0"
+
+aws_region_name: "us-east-1"
+
+# Bedrock auth is via AWS_BEARER_TOKEN_BEDROCK; the harness skips the
+# api_key_env existence check for bedrock: routes. Value here is documentation.
+api_key_env: AWS_BEARER_TOKEN_BEDROCK
+api_base: ""
+
+num_threads: 8
+eval_num_threads: 8
+
+# Thinking ON — GPT-OSS-20B's reasoning lives in a separate Bedrock content
+# block (reasoningContent.reasoningText) that the shim ignores. /no_think
+# injection is Qwen3-specific and would just confuse the prompt here.
+thinking: true
+task_thinking: true
+reflection_thinking: true
+
+task_temperature: 0.0
+# Generous output budget so reasoning + visible text both fit. The Bedrock
+# 16K cap for this model is the absolute ceiling; 8K leaves room without
+# burning the whole budget on every call.
+task_max_tokens: 8192
+reflection_temperature: 1.0
+reflection_max_tokens: 8192

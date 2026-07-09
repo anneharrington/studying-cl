@@ -1,0 +1,5 @@
+path: data/livebench_math.jsonl
+train_n: 70
+val_n: 30
+eval_n: 40
+seed: 42

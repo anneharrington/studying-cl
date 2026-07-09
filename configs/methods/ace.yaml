@@ -1,0 +1,57 @@
+# Config for the ACE wrapper runner (methods/prompt_based/runners/ace_runner.py).
+# These keys pass straight through to `ACE.run(config=...)` in the reference
+# implementation (./ace/ace/ace.py).
+#
+# ACE processes samples one at a time. Per-task LLM call volume is roughly:
+#   num_epochs * len(train_samples) * (max_num_rounds generator/reflector calls
+#                                      + 1 curator call every curator_frequency samples)
+# For comparability with GEPA (~45-60 rollouts/task) and OpenEvolve (~100 evaluations/task),
+# curator_frequency=10 + max_num_rounds=1 + num_epochs=1 on train_n=200 gives ~200 generator
+# + ~200 reflector + ~20 curator calls. Tune down if too expensive.
+
+num_epochs: 1
+max_num_rounds: 1           # reflection rounds per sample
+curator_frequency: 10       # invoke the curator every N samples
+eval_steps: 100              # validation interval during training
+save_steps: 50              # playbook checkpoint interval
+playbook_token_budget: 80000
+
+# JSON-mode asks the API to force valid-JSON outputs. Default is false (matches
+# ACE's own _extract_config_params default). Some providers (including qwen3
+# via OpenRouter) return JSON strings instead of objects under this flag, which
+# trips a latent bug in ace/core/generator.py::_extract_bullet_ids — only flip
+# on if you've verified the provider returns well-shaped JSON objects.
+json_mode: false
+no_ground_truth: false
+
+# Grow-and-refine bullet dedup (requires sentence-transformers + faiss-cpu).
+use_bulletpoint_analyzer: false
+bulletpoint_analyzer_threshold: 0.90
+
+max_tokens: 4096
+test_workers: 32
+
+# API provider passed to ACE. 'openrouter' is a native choice in utils.initialize_clients
+# and uses OPENROUTER_API_KEY. Override for other providers.
+api_provider: openrouter
+
+# Model overrides — null falls back to model_profile.task_lm.
+reflector_model: null
+curator_model: null
+
+# Split-provider reflector (optional). Set reflector_api_provider to run the
+# reflector on a different provider than the generator/curator — e.g. task LM
+# via Portkey->Fireworks, reflector direct to OpenAI GPT-5.2. When null, the
+# reflector stays on the task provider (original single-provider behaviour).
+#   reflector_api_provider: "openai" | "openrouter" | "portkey" | ...
+#   reflector_api_key_env:  env var holding the reflector key (non-portkey)
+#   reflector_api_base:     optional base URL override (non-portkey)
+# For provider="portkey", set reflector_model to a "portkey:<route>" string
+# instead and these two are ignored.
+reflector_api_provider: null
+reflector_api_key_env: null
+reflector_api_base: null
+# Reflector-only token budget. null -> reuse max_tokens. Bump this when the
+# reflector is a reasoning model whose reasoning tokens would otherwise eat
+# the whole max_tokens budget.
+reflector_max_tokens: null

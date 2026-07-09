@@ -1,0 +1,7 @@
+[GENERAL_INSTRUCTIONS]
+Answer the financial question using the provided narrative context and table. Compute the numeric answer and give it as a single number (no units, percent signs, or commas) on its own line after 'Answer:'.
+[/GENERAL_INSTRUCTIONS]
+
+{question}
+
+Think step by step, then provide your final numeric answer on its own line after "Answer:".

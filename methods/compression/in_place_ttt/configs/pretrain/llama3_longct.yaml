@@ -1,0 +1,58 @@
+# Copyright 2026 Bytedance Ltd. and/or its affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+model:
+  model_path: /path/to/your_base_model
+  foundation:
+    ttt_layers: [0, 6, 12, 18, 24, 30, 36]
+    ttt_mode: true
+    ttt_proj: true
+    ttt_lr: 3
+    ttt_chunk: 4096
+
+data:
+  train_path: /path/to/your_data
+  train_size: 20000000000
+  dataloader_type: native
+  datasets_type: iterable
+  data_type: plaintext
+  max_seq_len: 65536
+  text_keys: content_split
+  drop_last: true
+
+train:
+  output_dir: /path/to/your_output_dir
+  data_parallel_mode: fsdp2
+  ulysses_parallel_size: 1
+  global_batch_size: 64
+  micro_batch_size: 1
+  rmpad: false
+  use_wandb: true
+  max_steps: 5000
+  rmpad_with_pos_ids: false
+  dyn_bsz_margin: 0
+  optimizer: adamw
+  lr: 5.0e-6
+  lr_warmup_ratio: 0.02
+  lr_decay_style: cosine
+  lr_decay_ratio: 0.90
+  weight_decay: 0.1
+  max_grad_norm: 1.0
+  enable_mixed_precision: true
+  enable_gradient_checkpointing: true
+  enable_full_shard: true
+  init_device: meta
+  ckpt_manager: dcp
+  save_steps: 500
+  save_hf_weights: true

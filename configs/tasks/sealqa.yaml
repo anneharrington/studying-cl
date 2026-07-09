@@ -1,0 +1,8 @@
+path: data/sealQA/parquet
+train_n: 80
+val_n: 20
+eval_n: 50
+seed: 42
+max_docs: 12
+max_doc_chars: 4000
+max_context_chars: 50000

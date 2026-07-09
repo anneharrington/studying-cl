@@ -1,0 +1,5 @@
+[GENERAL_INSTRUCTIONS]
+Given API documentation and a user request, determine the correct sequence of API function calls. For each call, output the function name and JSON parameters as: Action: <name>\nAction_Input: <json>
+[/GENERAL_INSTRUCTIONS]
+
+{question}

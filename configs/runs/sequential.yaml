@@ -1,0 +1,12 @@
+# Composable sequential run config.
+#
+# cl.config.load_config() requires a config file even when everything is
+# specified on the CLI; this is the minimal thin config that works for ALL
+# (method, task-family) combos because the CLI's --method, --tasks, and
+# --model overrides supersede the file. Per-method/per-task knobs come from
+# configs/methods/<method>.yaml and configs/tasks/<task>.yaml respectively.
+#
+# Used by ./run.sh <gepa|ace> <task_family> — see scripts/run.py for the
+# --strategy / --tasks / --model semantics.
+model: qwen-3-8b
+strategy: sequential

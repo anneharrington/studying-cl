@@ -1,0 +1,6 @@
+train_path: data/medmcqa_train.jsonl
+eval_path: data/medmcqa_val.jsonl
+train_n: 2000
+val_n: 100
+eval_n: 500
+seed: 42

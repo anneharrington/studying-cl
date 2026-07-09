@@ -1,0 +1,3 @@
+Follow all instructions in the prompt below precisely and completely. Pay careful attention to every formatting requirement, length constraint, keyword inclusion, and content specification.
+
+{prompt}

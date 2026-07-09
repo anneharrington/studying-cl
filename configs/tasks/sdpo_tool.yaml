@@ -1,0 +1,6 @@
+train_path: data/sdpo_tooluse/train.jsonl
+eval_path: data/sdpo_tooluse/test.jsonl
+train_n: 500
+val_n: 0
+eval_n: 68
+seed: 42

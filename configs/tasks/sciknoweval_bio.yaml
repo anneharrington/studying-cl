@@ -1,0 +1,9 @@
+# Parquet directory: data/parquet/sciknoweval_bio/{train.parquet, val.parquet}
+# Source: continual-rl-self-distil grpo_orderB_nothink_s42 sweep.
+# Train parquet (450 rows) is seeded-shuffled and split 50/50 into train+val.
+# Val parquet (50 rows) is the held-out eval set training reports 33.75% on.
+path: data/parquet/sciknoweval_bio
+train_n: 225
+val_n: 225
+eval_n: 50
+seed: 42

@@ -1,0 +1,9 @@
+# Parquet directory: data/parquet/finqa/{train.parquet, val.parquet}
+# Source: continual-rl-self-distil grpo_orderB_nothink_s42 sweep.
+# Train parquet (500 rows) is seeded-shuffled and split 50/50 into train+val.
+# Val parquet (128 rows) is the held-out eval set training reports 25.59% on.
+path: data/parquet/finqa
+train_n: 250
+val_n: 250
+eval_n: 128
+seed: 42

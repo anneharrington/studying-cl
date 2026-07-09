@@ -1,0 +1,8 @@
+Answer the question based on the provided context paragraphs.
+
+Context:
+{context}
+
+Question: {question}
+
+Think step by step, then provide your final answer on its own line after "Answer:".

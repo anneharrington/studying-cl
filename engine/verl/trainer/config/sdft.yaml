@@ -1,0 +1,73 @@
+# SDFT: Self-Distillation Fine-Tuning (Shenfeld et al. arXiv:2601.19897)
+#
+# Reuses SDPO's policy-loss machinery (loss_mode: sdpo) because SDFT is a special
+# case of generalized-JSD self-distillation: forward KL (alpha=0.0), student-as-
+# teacher via slow EMA, dataset-provided demonstrations (not self-successes).
+#
+# Numerical values are transcribed from the authors' reference implementation
+# at https://github.com/idanshen/Self-Distillation/blob/main/main.py. The
+# repository's README clarifies that published results use forward KL.
+
+defaults:
+  - ppo_trainer
+  - user
+  - _self_
+
+# Matches sdpo.yaml sizing; max_response=1024 per SDFT paper (main.py: max_completion_length=1024).
+max_model_len: 10240
+
+actor_rollout_ref:
+  actor:
+    # Effective batch = 32 prompts/step (num_prompts_per_batch=32 in main.py).
+    # per_device=1 x grad_accum=32 in the authors' setup; our DP shards the 32 across GPUs.
+    ppo_mini_batch_size: 32
+    policy_loss:
+      loss_mode: sdpo
+    self_distillation:
+      alpha: 0.0                      # forward KL
+      teacher_regularization: ema
+      teacher_update_rate: 0.01       # ref_model_mixup_alpha=0.01
+      demo_source: gold               # use gold_demo from dataset, not self-successes
+      dont_reprompt_on_self_success: false
+      num_loss_tokens_to_skip: 3      # skip the first 3 response tokens (main.py)
+      distillation_topk: null         # full-logit KL (no top-k approximation in authors' code)
+      distillation_add_tail: true
+      full_logit_distillation: true
+      max_reprompt_len: 10240
+      is_clip: 2.0
+      # Teacher prompt template: transcribed verbatim from idanshen/Self-Distillation/main.py.
+      # The student receives {prompt}; the teacher receives the original prompt plus an
+      # in-context gold demonstration, which is what makes the teacher distribution better
+      # than the student on this prompt.
+      reprompt_template: "{prompt}{solution}{feedback}"
+      solution_template: "\n\nThis is an example for a response to the question:\n{successful_previous_attempt}\n\nNow answer with a response of your own, including the thinking process.\n"
+      feedback_template: ""
+      include_environment_feedback: false
+    optim:
+      # Authors' main.py uses 5e-5 on Qwen2.5-7B-Instruct. Qwen3-8B has heavier
+      # post-training, and 1e-5 matches SDPO/GRPO in this sweep so cross-method
+      # comparison has zero LR confound.
+      lr: 1.0e-5
+      lr_warmup_steps_ratio: 0.1
+      lr_scheduler_type: cosine
+      clip_grad: 1.0
+  rollout:
+    n: 1                              # num_generations=1 in main.py
+    temperature: 1.0
+    calculate_log_probs: true
+
+algorithm:
+  adv_estimator: grpo                 # disables critic; advantages unused in pure distillation
+  norm_adv_by_std_in_grpo: false
+  rollout_correction:
+    rollout_is: token                 # vllm_importance_sampling_correction=true
+    rollout_is_threshold: 2.0
+
+data:
+  train_batch_size: 32
+  max_prompt_length: 1024
+  max_response_length: 1024
+
+trainer:
+  val_before_train: true              # zero-shot eval at step 0 (continual-learning FWT anchor)
+  total_epochs: 2                     # num_train_epochs=2

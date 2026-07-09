@@ -1,0 +1,11 @@
+[GENERAL_INSTRUCTIONS]
+Given API documentation and a user request, determine the correct sequence of API function calls needed.
+[/GENERAL_INSTRUCTIONS]
+
+{question}
+
+Respond with the function calls in this exact format:
+Action: <function_name>
+Action_Input: <json_parameters>
+
+Separate multiple calls with a blank line. Think step by step before responding.

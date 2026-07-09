@@ -1,0 +1,5 @@
+path: data/toolalpaca_eval_simulated.json
+train_n: 50
+val_n: 20
+eval_n: 30
+seed: 42

@@ -1,0 +1,45 @@
+# Qwen3-8B via Amazon SageMaker endpoint (qwen3-8b-32k-east in us-east-1).
+#
+# Routing convention: `sagemaker:<endpoint_name>` is intercepted in
+# methods/prompt_based/gepa_method.py::_build_lm and routed through
+# methods/prompt_based/sagemaker_lm.py::SageMakerChatLM, which calls
+# boto3.invoke_endpoint directly. Litellm is bypassed entirely on this path —
+# avoids the body-`model`-mismatch issue (litellm auto-fills `model` with the
+# endpoint name; the inference server inside expects its loaded model id).
+#
+# AWS auth follows boto3's standard provider chain. The simplest setup:
+#   .env:  AWS_PROFILE=qwen3-user
+#          AWS_DEFAULT_REGION=us-east-1
+#          OPENROUTER_API_KEY=unused   # dummy; runner skips the check for sagemaker
+#   ~/.aws/credentials populated via `aws configure --profile qwen3-user`.
+#
+# Switch back to qwen-3-8b-alibaba (OpenRouter) just by changing --model on
+# the run command; that path uses litellm and is unaffected by these settings.
+
+task_lm: "sagemaker:qwen3-8b-32k-east"
+reflection_lm: "sagemaker:qwen3-8b-32k-east"
+
+# AWS region for SageMaker. Falls back to AWS_DEFAULT_REGION env var if unset.
+aws_region_name: "us-east-1"
+
+# Unused on the SageMaker path (no API key) but kept so the runner's
+# cfg["model"].get("api_key_env") read returns a sensible value if any
+# other code looks at it. The api_key_env env var check is bypassed when
+# task_lm starts with "sagemaker:".
+api_key_env: OPENROUTER_API_KEY
+
+num_threads: 8
+eval_num_threads: 8
+
+# qwen3 thinking control. When task_thinking/reflection_thinking is False,
+# SageMakerChatLM appends "/no_think" to the last user message and strips
+# the empty <think></think> shell from responses.
+thinking: false
+task_thinking: false
+reflection_thinking: false
+
+task_temperature: 0.0
+task_max_tokens: 8192
+reflection_temperature: 1.0
+reflection_max_tokens: 8192   # bumped down from 32k — qwen3 reflection traces
+                              # at no_think rarely exceed 4-6k; keeps wall-clock down.

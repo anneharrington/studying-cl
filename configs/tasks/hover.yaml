@@ -1,0 +1,5 @@
+path: data/hover_dev_release_v1.1.json
+train_n: 200
+val_n: 100
+eval_n: 100
+seed: 42

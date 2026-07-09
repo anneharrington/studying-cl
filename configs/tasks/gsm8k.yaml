@@ -1,0 +1,5 @@
+path: data/gsm8k_test.jsonl
+train_n: 200
+val_n: 100
+eval_n: 100
+seed: 42

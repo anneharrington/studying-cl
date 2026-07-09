@@ -1,0 +1,76 @@
+# ---- environments ----
+.env
+.venv/
+.venv-*/
+# also match symlinks pointing to a venv (e.g., `.venv-verl -> /some/shared/venv`)
+.venv-*
+venv/
+venv-*/
+venv-*
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+CLAUDE.local.md
+
+# ---- model weights / checkpoints ----
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+global_step_*/
+**/best_hf/
+**/final_hf/
+**/best_adapter/
+**/final_adapter/
+**/dcp/
+**/checkpoints/
+
+# ---- run outputs / logs / experiment artifacts ----
+results/
+runs/
+**/runs/
+# configs/runs/ holds composable run configs (tracked), not training output
+!configs/runs/
+!configs/runs/**
+sdpo_seq/
+**/sdpo_seq/
+outputs/
+wandb/
+**/wandb/
+*.log
+**/logs/
+.judge_cache.jsonl
+
+# ---- data (large) — keep prep scripts, drop downloaded/built data ----
+data/*
+!data/prep/
+!data/parquet/
+datasets/
+# also match a top-level `datasets` symlink pointing to a populated dir
+datasets
+**/*.parquet
+
+# ---- external repos cloned at runtime (not vendored) ----
+/SDPO/
+/gepa/
+/openevolve/
+/SciKnowEval/
+/ToolAlpaca/
+
+# ---- OS / editor ----
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+
+# ---- python build metadata ----
+*.egg-info/
+build/
+dist/
+
+# ---- local editor/agent settings ----
+.claude/

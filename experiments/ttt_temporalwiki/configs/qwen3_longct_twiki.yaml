@@ -1,0 +1,55 @@
+# Derived from In-Place-TTT/configs/pretrain/qwen3_longct.yaml.
+#
+# Most fields are inherited from upstream defaults; we override only:
+#   - model_path: Qwen3-8B HF cache
+#   - data.train_path: filled in by run_chain.sh per phase
+#   - train.output_dir: filled in by run_chain.sh per phase
+#   - train.max_steps: tuned to our per-phase corpus size
+#   - ttt_target: hidden_states (continual-training mode per upstream README)
+#
+# Note: max_seq_len reduced from 65536 → 16384 to match SDPO's eval-time
+# context. Memory-wise also lets micro_batch_size=1 fit comfortably.
+
+model:
+  model_path: ${MODEL_PATH}              # Qwen/Qwen3-8B (resolved via HF_HOME)
+  foundation:
+    ttt_layers: [0, 6, 12, 18, 24, 30, 36]
+    ttt_mode: true
+    ttt_proj: true
+    ttt_lr: 3
+    ttt_chunk: 4096
+    ttt_target: hidden_states            # continual training (upstream README §Recommended Config tip)
+
+data:
+  train_path: ${TRAIN_PATH}              # /workspace/.../ttt_finance/data/cumulative_y${i}
+  train_size: 20000000000
+  dataloader_type: native
+  datasets_type: iterable
+  data_type: plaintext
+  max_seq_len: 16384                    # bumped from 4096: training data switched from triple strings to Wikipedia article bodies (up to ~60K tokens each). 16K fits memory under fsdp2+gbs=64; longer articles are dataloader-truncated (acceptable — head holds the high-info content).
+  text_keys: content_split
+  drop_last: true
+
+train:
+  output_dir: ${OUTPUT_DIR}              # /workspace/.../ttt_finance/runs/<RUN_TAG>/train/y${y}/dcp
+  data_parallel_mode: fsdp2
+  global_batch_size: 64
+  micro_batch_size: 1
+  optimizer: adamw
+  lr: 5.0e-6                              # paper-rec for continual pretrain
+  lr_warmup_ratio: 0.02
+  lr_decay_style: cosine
+  lr_decay_ratio: 0.90
+  weight_decay: 0.1
+  max_grad_norm: 1.0
+  max_steps: 500                          # ~ corpus_size / (gbs * seq_len) per phase; tune in chain
+  enable_mixed_precision: true
+  enable_gradient_checkpointing: true
+  enable_full_shard: true
+  init_device: meta
+  ckpt_manager: dcp
+  save_steps: 500
+  save_hf_weights: true
+  use_wandb: true
+  wandb_project: ${WANDB_PROJECT:-sdpo_seq}
+  wandb_name: ${WANDB_NAME}

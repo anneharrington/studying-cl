@@ -1,0 +1,39 @@
+# Qwen 3-8B via OpenRouter, pinned to the Alibaba upstream provider.
+#
+#   - `api_base` / `api_key_env` stay on OpenRouter; the Alibaba routing is
+#     enforced per-request via `extra_body.provider.only`. This gives us
+#     Alibaba's full ~128K context window (OpenRouter's default routing can
+#     downgrade to providers with shorter ceilings).
+#   - `task_thinking: false` / `reflection_thinking: false` disable qwen3
+#     reasoning; the runner merges `{"reasoning": {"enabled": false}}` into
+#     `extra_body` at call time.
+#   - `task_max_tokens` is bumped so Alibaba's longer output budget is usable.
+task_lm: "openai/qwen/qwen3-8b"
+reflection_lm: "openai/qwen/qwen3-8b"
+api_base: "https://openrouter.ai/api/v1"
+api_key_env: OPENROUTER_API_KEY
+num_threads: 16
+eval_num_threads: 16
+thinking: false
+task_thinking: false
+reflection_thinking: false
+task_max_tokens: 32768
+reflection_max_tokens: 32768
+
+# Extra body merged into every chat.completions.create() call (GEPA via
+# dspy/litellm, ACE via openai SDK, cross-task eval via openevolve_runner).
+extra_body:
+  provider:
+    only: [alibaba]
+    allow_fallbacks: false
+
+# OpenEvolve evolution LLM (unused by GEPA/ACE but kept for parity).
+openevolve_llm:
+  api_base: "https://openrouter.ai/api/v1"
+  models:
+    - name: "qwen/qwen3-8b"
+      weight: 1.0
+  temperature: 0.7
+  max_tokens: 8192
+  timeout: 150
+  retries: 1

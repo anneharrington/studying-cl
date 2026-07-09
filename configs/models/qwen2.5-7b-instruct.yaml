@@ -1,0 +1,4 @@
+model_name_or_path: "Qwen/Qwen2.5-7B-Instruct"
+model_type: "local"
+torch_dtype: "bfloat16"
+load_in_4bit: false

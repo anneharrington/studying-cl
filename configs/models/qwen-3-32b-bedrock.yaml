@@ -1,0 +1,56 @@
+# Qwen3-32B via AWS Bedrock Converse API.
+#
+# Routing convention: `bedrock:<modelId>` is intercepted in
+# methods/prompt_based/gepa_method.py::_build_lm and routed through
+# methods/prompt_based/bedrock_lm.py::BedrockChatLM, which calls
+# boto3.client("bedrock-runtime").converse() directly. Litellm is bypassed.
+# Why bypass: Bedrock's Converse API has its own envelope (separate `system`
+# array, content blocks instead of strings, `inferenceConfig` instead of
+# OpenAI's flat kwargs) — the shim translates OpenAI-shape messages on the
+# way in and the response on the way out.
+#
+# Auth: AWS_BEARER_TOKEN_BEDROCK env var (see .env). boto3 picks it up
+# automatically and switches to bearer auth, bypassing SigV4/IAM. No
+# IAM policy on the calling identity is required.
+#
+# Region: us-east-1 by default; override via aws_region_name below.
+
+task_lm: "bedrock:qwen.qwen3-32b-v1:0"
+reflection_lm: "bedrock:qwen.qwen3-32b-v1:0"
+
+aws_region_name: "us-east-1"
+
+# Self-documenting: the harness skips the api_key_env existence check for
+# bedrock: routes (auth goes through boto3 / bearer token), but a sensible
+# value here makes the model profile readable and works if a downstream
+# helper ever reads cfg["model"]["api_key_env"].
+api_key_env: AWS_BEARER_TOKEN_BEDROCK
+
+# Unused on the Bedrock path (the shim constructs its own client) but kept
+# so cfg["model"].get("api_base") doesn't fail.
+api_base: ""
+
+num_threads: 8
+eval_num_threads: 8
+
+# qwen3 thinking control. When task_thinking/reflection_thinking is False,
+# BedrockChatLM / BedrockOpenAIShim inject /no_think into both the system
+# message and the last user message, then strip <think>...</think> from
+# responses. Two-slot injection mirrors portkey_lm — a single user-message
+# injection was overrideable by dense playbook prompts.
+thinking: false
+task_thinking: false
+reflection_thinking: false
+
+task_temperature: 0.0
+# Bedrock + Qwen3-32B comfortably handles 4096 output tokens. Matches the
+# prior Fireworks variant for like-for-like comparison.
+task_max_tokens: 4096
+reflection_temperature: 1.0
+reflection_max_tokens: 4096
+
+# OpenEvolve evolution LM. Bedrock isn't OpenAI-compatible over HTTP, so
+# OE's litellm/OpenAI-SDK-shaped mutation loop won't work against this
+# route. Kept empty/commented for parity — only relevant if --method
+# openevolve* is used with this profile.
+# openevolve_llm: <not supported on bedrock path>

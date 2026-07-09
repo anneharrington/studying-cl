@@ -1,0 +1,10 @@
+[GENERAL_INSTRUCTIONS]
+Answer the question based on the provided context paragraphs.
+[/GENERAL_INSTRUCTIONS]
+
+Context:
+{context}
+
+Question: {question}
+
+Think step by step, then provide your final answer on its own line after "Answer:".

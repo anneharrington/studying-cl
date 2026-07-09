@@ -1,0 +1,15 @@
+# Config for the from-scratch ACE runner (methods/prompt_based/runners/ace_minimal_runner.py).
+# Kept as a fallback / sanity check alongside the reference-repo wrapper.
+#
+# Per-task LLM call volume:
+#   n_epochs * (ceil(train_n / batch_size)) batches
+#   * (batch_size generator calls + 1 reflector call + 1 curator call)
+
+batch_size: 20
+n_epochs_per_task: 1
+n_train_per_task: null        # null = use the full task train_set
+
+max_playbook_bullets: 100
+
+reflector_model: null
+curator_model: null

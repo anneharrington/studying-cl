@@ -1,0 +1,7 @@
+[GENERAL_INSTRUCTIONS]
+Solve the following math word problem step by step.
+[/GENERAL_INSTRUCTIONS]
+
+{question}
+
+Show your reasoning, then give the final numeric answer on its own line after "####".

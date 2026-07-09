@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "studying-cl"
+version = "0.1.0"
+description = "Studying Learning in Continual Learning — unified harness for prompt-based, weight-update, and compression continual-learning methods"
+requires-python = ">=3.11"
+# This is the *prompt-based* harness environment (GEPA / ACE / OpenEvolve) plus
+# the shared eval/task library in `cl/`. The weight-update (verl) and compression
+# (cartridges, in_place_ttt) subsystems have conflicting dependency pins and live
+# in their own environments — see envs/requirements-*.txt and docs/SETUP.md.
+dependencies = [
+    "openevolve",
+    "gepa[full]",
+    "datasets",
+    "pyyaml",
+    # dspy>=3.1 gracefully falls back to memory cache; older 2.6.x crashes on
+    # import with newer diskcache (KeyError on eviction policy).
+    "dspy>=3.1.3",
+    "langdetect",
+    "nltk",
+    "immutabledict",
+    "absl-py",
+    "wandb",
+    "python-dotenv",
+    "pyarrow>=23.0.1",
+    "litellm>=1.51",
+    "boto3>=1.43.2",
+    "portkey-ai>=2.3.0",
+    "sentence-transformers>=5.5.0",
+    "faiss-cpu>=1.13.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+# Only the prompt-based harness is a first-party importable package. The verl
+# engine and vendored compression methods are installed separately.
+include = ["cl*", "methods.prompt_based*"]

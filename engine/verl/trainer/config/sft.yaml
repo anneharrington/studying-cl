@@ -1,0 +1,83 @@
+# Plain SFT — implemented as a special case of SDPO/SDFT.
+#
+# Loss reduction (against verl/trainer/ppo/core_algos.compute_self_distillation_loss):
+#   per_token_loss = F.kl_div(student_log_probs, teacher_log_probs,
+#                             reduction="none", log_target=True).sum(-1)
+#                  = Σᵥ p_T[v] · (log p_T[v] − log p_S[v])             (= KL(p_T ‖ p_S))
+# With p_T set to one-hot on the gold token g, every v ≠ g term zeroes out and the
+# v = g term collapses to −log p_S(g), i.e. plain SFT cross-entropy.
+#
+# Three contamination sources must be turned off so the *whole* loss equals NLL:
+#   - is_clip = null               (skip per_token_loss *= ratio.clamp(max=is_clip))
+#   - algorithm.rollout_correction = null
+#                                  (skip the IS-weight multiplication path entirely)
+#   - use_kl_loss = false          (default in ppo_trainer.yaml)
+#
+# Two new knobs make the gold-NLL reduction work:
+#   actor_rollout_ref.rollout.use_gold_response: true
+#       trainer overrides rollout responses with reward_model.ground_truth right
+#       after generate_sequences (see ray_trainer._substitute_gold_responses).
+#   self_distillation.teacher_regularization: gold
+#       dp_actor builds a one-hot teacher distribution over response tokens (now
+#       the gold) instead of running a teacher forward pass.
+#
+# Hyperparameters mirror sdft.yaml so cross-method comparison has zero confound
+# except the loss objective.
+
+defaults:
+  - ppo_trainer
+  - user
+  - _self_
+
+# Match sdft.yaml KV ceiling (rollout still runs for val_before_train).
+max_model_len: 10240
+
+actor_rollout_ref:
+  actor:
+    ppo_mini_batch_size: 32          # match sdft (32 prompts/step)
+    policy_loss:
+      loss_mode: sdpo                # reuse SDPO machinery
+    self_distillation:
+      alpha: 0.0                     # forward KL (per F.kl_div with log_target=True)
+      teacher_regularization: gold   # NEW: one-hot teacher on response (= gold) tokens
+      teacher_update_rate: 0.0       # unused in gold mode (no EMA)
+      demo_source: gold              # required by self_distillation_cfg validator
+      dont_reprompt_on_self_success: false
+      num_loss_tokens_to_skip: 0     # SDFT skips 3; for plain SFT we don't
+      distillation_topk: null
+      distillation_add_tail: true
+      full_logit_distillation: true  # required for the F.kl_div reduction above
+      is_clip: null                  # disable IS clip (no meaningful old_log_probs after substitution)
+      max_reprompt_len: 10240
+      include_environment_feedback: false
+      reprompt_template: "{prompt}{solution}{feedback}"
+      solution_template: ""
+      feedback_template: ""
+    optim:
+      lr: 1.0e-5
+      lr_warmup_steps_ratio: 0.1
+      lr_scheduler_type: cosine
+      clip_grad: 1.0
+  rollout:
+    use_gold_response: true          # NEW: overwrite responses with dataset gold post-rollout
+    n: 1                             # rollout output is unused for the loss; n=1 minimizes cost
+    temperature: 1.0
+    calculate_log_probs: true
+
+algorithm:
+  adv_estimator: grpo                # disables critic; advantages unused (NLL has no advantages)
+  norm_adv_by_std_in_grpo: false
+  rollout_correction: null           # CRITICAL: disable IS-weight multiplication so loss = pure NLL.
+                                     # Set to null (not {rollout_is: token, ...}) — the trainer guard
+                                     # `if rollout_corr_config is not None` then skips the IS path,
+                                     # rollout_is_weights never enters the batch, and dp_actor passes
+                                     # None into compute_self_distillation_loss.
+
+data:
+  train_batch_size: 32
+  max_prompt_length: 1024
+  max_response_length: 1024
+
+trainer:
+  val_before_train: true             # zero-shot row at step 0 (continual-learning FWT anchor)
+  total_epochs: 2                    # match the rest of the sweep

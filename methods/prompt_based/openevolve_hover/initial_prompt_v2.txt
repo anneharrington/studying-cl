@@ -1,0 +1,7 @@
+[GENERAL_INSTRUCTIONS]
+Determine whether the following claim is factually correct. Respond with exactly "SUPPORTED" if the claim is true, or "NOT_SUPPORTED" if the claim is false or unverifiable.
+[/GENERAL_INSTRUCTIONS]
+
+Claim: {claim}
+
+Think step by step, then provide your final verdict on its own line after "Label:".

@@ -1,0 +1,6 @@
+train_path: data/math_train.jsonl
+eval_path: data/math_test.jsonl
+train_n: 0
+val_n: 0
+eval_n: 500
+seed: 42

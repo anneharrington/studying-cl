@@ -1,0 +1,23 @@
+# Compression method: In-Place TTT (continual pretraining via test-time training).
+# Built on ByteDance VeOmni — the vendored package IS a VeOmni fork extended with
+# TTT-aware Qwen3/Llama3 models. Needs its own venv (requires-python >=3.11,<3.12;
+# transformers==4.57.3, torch 2.8 + flash-attn — conflicts with all other envs).
+#
+# Setup (see docs/SETUP.md):
+#   uv venv .venv-ttt --python 3.11 && source .venv-ttt/bin/activate
+#   pip install torch==2.8.0 torchvision --index-url https://download.pytorch.org/whl/cu128
+#   pip install -e methods/compression/in_place_ttt
+#   pip install flash-attn --no-build-isolation
+#
+# Evaluation uses OpenCompass (RULER configs in in_place_ttt/eval_config/).
+# Key pins (authoritative list is in_place_ttt/pyproject.toml):
+transformers==4.57.3
+datasets>=2.16.0,<=2.21.0
+torchdata>=0.8.0,<1.0
+diffusers>=0.30.0,<=0.31.0
+tiktoken>=0.9.0
+einops>=0.8.1
+blobfile>=3.0.0
+timm
+wandb
+psutil

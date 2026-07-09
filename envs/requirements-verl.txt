@@ -1,0 +1,44 @@
+# Weight-update engine (verl) — drives SFT / SDFT (offline) and GRPO / SDPO (online).
+# Needs its own venv: deps (esp. transformers/torch) conflict with the harness and
+# the compression methods. Requires NVIDIA GPU(s).
+#
+# Setup (see docs/SETUP.md):
+#   uv venv .venv-verl --python 3.12 && source .venv-verl/bin/activate
+#   pip install torch==2.5.1 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+#   pip install -r envs/requirements-verl.txt
+#   pip install flash-attn --no-build-isolation
+#   export PYTHONPATH=$PWD/engine:$PYTHONPATH     # so `python -m verl.trainer.main_ppo` resolves
+#
+# vLLM is hardware-specific — install the variant matching your GPU:
+#   vllm==0.8.4    # GH200 ;  vllm>=0.12.0  # Blackwell (untested)
+
+accelerate==1.12.0
+codetiming==1.4.0
+datasets==4.4.2
+dill==0.4.0
+hydra-core==1.3.2
+liger-kernel
+numpy==2.1.0
+pandas==2.3.3
+peft==0.18.0
+pyarrow==22.0.0
+pybind11==3.0.1
+pylatexenc==2.10
+ray[default]==2.53.0
+tensordict==0.10.0
+torchdata==0.11.0
+transformers==4.57.1
+wandb==0.23.1
+packaging==25.0
+uvicorn==0.40.0
+fastapi==0.127.0
+latex2sympy2_extended==1.10.2
+math-verify[antlr4_9_3]==0.8.0
+tensorboard==2.20.0
+word2number==1.1
+latex2sympy2==1.5.4
+pyzmq==27.1.0
+psutil==7.1.3
+huggingface_hub
+# sglang rollout backend (optional alternative to vLLM):
+#   sglang[all]==0.5.2

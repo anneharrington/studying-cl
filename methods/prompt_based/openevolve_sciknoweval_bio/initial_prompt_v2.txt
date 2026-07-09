@@ -1,0 +1,7 @@
+[GENERAL_INSTRUCTIONS]
+Answer the scientific biology question. Respond with just the letter (A, B, C, or D) of the correct choice.
+[/GENERAL_INSTRUCTIONS]
+
+{question}
+
+Think step by step, then provide your final answer on its own line after "Answer:".

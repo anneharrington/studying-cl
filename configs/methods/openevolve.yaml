@@ -1,0 +1,23 @@
+max_iterations: 10
+log_level: INFO
+diff_based_evolution: false
+max_code_length: 10000
+language: text
+random_seed: 42
+
+prompt:
+  num_top_programs: 3
+  num_diverse_programs: 2
+
+database:
+  population_size: 50
+  num_islands: 2
+  feature_dimensions: ["score"]
+  feature_bins: 10
+  migration_interval: 5
+  migration_rate: 0.1
+
+evaluator:
+  timeout: 1800
+  cascade_evaluation: false
+  use_llm_feedback: false

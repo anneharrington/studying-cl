@@ -1,0 +1,73 @@
+# Qwen3-8B task model (Portkey -> Fireworks) with GPT-5.2 as the GEPA
+# reflection LM, hitting OpenAI DIRECTLY on a separate API key.
+#
+# Split-provider setup:
+#   task_lm       -> Portkey gateway -> Fireworks Qwen3-8B   (PORTKEY_API_KEY)
+#   reflection_lm -> litellm -> OpenAI GPT-5.2 directly      (OPENAI_REFLECTOR_API_KEY)
+#
+# GEPA builds the two LMs independently (gepa_method.py::configure_lms ->
+# _build_lm). reflection_api_key_env points the reflector at its own key, so
+# the reflector runs on a different provider/account than the task LM. When
+# reflection_api_key_env is omitted the reflector falls back to the task key
+# (the original single-provider behaviour) — nothing else changes.
+#
+# Why direct litellm instead of portkey:@openai/gpt-5.2? So the mentor's raw
+# OpenAI key is used as-is, with no Portkey virtual key / dashboard setup.
+# litellm handles GPT-5.2's reasoning-model quirks (max_completion_tokens,
+# fixed temperature) natively on this path.
+#
+# Required env (.env): PORTKEY_API_KEY (task) and OPENAI_REFLECTOR_API_KEY
+# (reflector — the key your mentor sent; keep it distinct from the existing
+# OPENAI_API_KEY so the two don't get crossed).
+#
+# NOTE: GEPA-only profile. For the ACE equivalent see the `ace:` block in
+# configs/runs/seq_ace_*_pk_gpt52reflector.yaml.
+
+task_lm: "portkey:@fireworks/accounts/fireworks/models/qwen3-8b"
+reflection_lm: "openai/gpt-5.2"
+
+# Task LM key. The reflector uses its own key env (below).
+api_key_env: PORTKEY_API_KEY
+# Reflector key — the separate OpenAI key. Resolved independently of api_key_env.
+reflection_api_key_env: OPENAI_REFLECTOR_API_KEY
+# reflection_api_base intentionally omitted -> litellm uses OpenAI's default.
+
+# Unused on the Portkey path (the SDK constructs its own URL) but kept so
+# cfg["model"].get("api_base") doesn't fail.
+api_base: ""
+
+num_threads: 8
+eval_num_threads: 8
+
+# qwen3 thinking control for the TASK LM. False -> PortkeyChatLM appends
+# "/no_think" to the last user message and strips <think>...</think>.
+thinking: false
+task_thinking: false
+
+# Leave reflection thinking ON. GPT-5.2 is a reasoning model; injecting
+# "/no_think" (what reflection_thinking: false would do) is meaningless for it.
+reflection_thinking: true
+
+task_temperature: 0.0
+# Fireworks-via-Portkey enforces max_tokens <= 4096 on non-streaming requests.
+task_max_tokens: 4096
+
+# GPT-5.2 requires temperature == 1 (reasoning models reject other values).
+reflection_temperature: 1.0
+# Generous budget: GPT-5.2 reasoning tokens count against max_tokens, and
+# DSPy's reasoning-model path wants ample headroom. Not Portkey-capped here
+# (this route is plain litellm -> OpenAI).
+reflection_max_tokens: 32000
+
+# OpenEvolve evolution LM — unused on the GEPA path, kept for profile parity
+# so an accidental --method openevolve run doesn't KeyError. Points at the
+# qwen task model, NOT GPT-5.2.
+openevolve_llm:
+  api_base: "https://api.portkey.ai/v1"
+  models:
+    - name: "@fireworks/accounts/fireworks/models/qwen3-8b"
+      weight: 1.0
+  temperature: 0.7
+  max_tokens: 4096
+  timeout: 300
+  retries: 2

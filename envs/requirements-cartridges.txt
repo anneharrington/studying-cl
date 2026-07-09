@@ -1,0 +1,21 @@
+# Compression method: Cartridges (KV-cache compression via self-study).
+# Standalone — has its own pyproject. Needs its own venv (transformers pin
+# differs from the harness, verl, and TTT).
+#
+# Setup (see docs/SETUP.md):
+#   uv venv .venv-cartridges --python 3.12 && source .venv-cartridges/bin/activate
+#   pip install -e methods/compression/cartridges
+#
+# The editable install above pulls the pins below from its pyproject. Also requires
+# a running Tokasaurus or SGLang inference server for the Q/A synthesis step.
+# Key pins (for reference; authoritative list is cartridges/pyproject.toml):
+torch
+transformers>=4.49.0,<=4.55
+openai
+datasets
+peft
+einops
+tiktoken
+pydrantic
+wandb
+numpy

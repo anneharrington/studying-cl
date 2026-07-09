@@ -1,0 +1,16 @@
+[project]
+name = "ace"
+version = "0.1.0"
+description = "Agentic Context Engineering"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "faiss-cpu>=1.7.4",
+    "openai>=1.0.0",
+    "together>=1.0.0",
+    "sambanova>=1.0.0",
+    "python-dotenv>=1.0.0",
+    "scikit-learn>=1.0.0",
+    "sentence-transformers>=2.2.0",
+    "tiktoken>=0.12.0",
+]

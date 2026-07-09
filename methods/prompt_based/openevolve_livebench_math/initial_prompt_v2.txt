@@ -1,0 +1,5 @@
+[GENERAL_INSTRUCTIONS]
+Solve the competition math problem. Think step by step, then give your final answer at the very end of your response in the format specified by the question.
+[/GENERAL_INSTRUCTIONS]
+
+{question}

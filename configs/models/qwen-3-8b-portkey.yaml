@@ -1,0 +1,62 @@
+# Qwen3-8B via Portkey gateway, routed to Fireworks (or any other Portkey
+# virtual key configured to serve qwen3-8b).
+#
+# Routing convention: `portkey:<route>` is intercepted in
+# methods/prompt_based/gepa_method.py::_build_lm and routed through
+# methods/prompt_based/portkey_lm.py — both use the Portkey SDK
+# directly with `strict_open_ai_compliance=False`. Litellm is bypassed.
+# Why bypass: some Portkey-fronted providers (Fireworks Qwen3 included) emit
+# response payloads with extra fields the OpenAI SDK's strict parser refuses;
+# the Portkey SDK's relaxed mode passes them through cleanly.
+#
+# The substring after `portkey:` is the Portkey model-routing string. To
+# point at a different upstream provider, change just that part:
+#   portkey:@fireworks/accounts/fireworks/models/qwen3-8b
+#   portkey:@together/Qwen/Qwen3-8B
+#   portkey:@<your_virtual_key>/<model_id>
+#
+# Auth: PORTKEY_API_KEY in .env (loaded automatically by scripts/run.py).
+
+task_lm: "portkey:@fireworks/accounts/fireworks/models/qwen3-8b"
+reflection_lm: "portkey:@fireworks/accounts/fireworks/models/qwen3-8b"
+
+# api_key_env stays PORTKEY_API_KEY — the Portkey SDK reads it from env, and
+# the harness's setup_run() still requires this env var to be set (the
+# is_sagemaker bypass doesn't apply to Portkey since Portkey IS key-based).
+api_key_env: PORTKEY_API_KEY
+
+# Unused on the Portkey path (the SDK constructs its own URL) but kept so
+# cfg["model"].get("api_base") doesn't fail.
+api_base: ""
+
+num_threads: 8
+eval_num_threads: 8
+
+# qwen3 thinking control. When task_thinking/reflection_thinking is False,
+# PortkeyChatLM / PortkeyOpenAIShim append "/no_think" to the last user
+# message and strip <think>...</think> from responses.
+thinking: false
+task_thinking: false
+reflection_thinking: false
+
+task_temperature: 0.0
+# Fireworks-via-Portkey enforces max_tokens <= 4096 on non-streaming requests
+# (the harness doesn't stream). Set both LMs at the cap.
+task_max_tokens: 4096
+reflection_temperature: 1.0
+reflection_max_tokens: 4096
+
+# OpenEvolve evolution LM. OE's internal evolution loop builds its own LLM
+# client from this block — it uses litellm/OpenAI-SDK shape, NOT our Portkey
+# SDK shim. Portkey's REST gateway at api.portkey.ai/v1 is OpenAI-compatible
+# enough for OE's mutation calls; api_key is taken from OPENAI_API_KEY which
+# setup_run() sets to PORTKEY_API_KEY's value on this code path.
+openevolve_llm:
+  api_base: "https://api.portkey.ai/v1"
+  models:
+    - name: "@fireworks/accounts/fireworks/models/qwen3-8b"
+      weight: 1.0
+  temperature: 0.7
+  max_tokens: 4096
+  timeout: 300
+  retries: 2
