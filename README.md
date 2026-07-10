@@ -1,9 +1,11 @@
-# When Does Continual Learning Require Learning?
+# When Does Continual Learning Require Learning
 
 Anne Harrington¹\*, Nayan Saxena², Michael Murphy¹, Anastasia Borovykh³, Zeyu Yun¹,
 Sridhar Kamath², Ara Eindra Kyi², Trevor Darrell¹, Jitendra Malik¹, Yutong Bai¹\*
 
-<sub>¹ UC Berkeley &nbsp;·&nbsp; ² Independent &nbsp;·&nbsp; ³ Capital Fund Management &nbsp;·&nbsp; \* Equal contribution</sub>
+UC Berkeley¹ &nbsp;·&nbsp; Independent² &nbsp;·&nbsp; Capital Fund Management³
+
+\*Equal contribution
 
 Methods for continual learning in large language models — prompting, fine-tuning,
 reinforcement learning, and context compression — are usually studied in isolation.
@@ -11,11 +13,13 @@ We propose a framework that lets us evaluate them together on the same sequentia
 benchmarks, and find that the data and task conditions determine whether continual
 learning requires learning.
 
-![A unified view of continual learning](assets/unified-cl-banner.png)
+[![A unified view of continual learning](assets/unified-cl-banner.png)](assets/unified-cl-banner.png)
 
-This is the unified code for the paper. See the
-[**Studying Learning in Continual Learning**](https://anneharrington.github.io/studying-cl/index.html)
-project page for the full write-up. We evaluate **eight methods across four families**
+[Project Page](https://anneharrington.github.io/studying-cl/index.html) | [arXiv](https://arxiv.org/abs/2607.07847)
+
+* * *
+
+This is the unified code for the paper. We evaluate **eight methods across four families**
 on the **same sequential benchmarks**, on a Qwen3-8B backbone. The code is organized
 **by method family**, with a shared evaluation library (`cl/`) so every method is
 measured on identical tasks.
@@ -107,3 +111,19 @@ This codebase builds on several open-source projects, vendored under `engine/` a
   [OpenEvolve](https://github.com/algorithmicsuperintelligence/openevolve).
 - **Compression methods:** [Cartridges](https://github.com/HazyResearch/cartridges)
   and In-Place TTT.
+
+## Citation
+
+If you find this work useful, please cite:
+
+```bibtex
+@misc{harrington2026continual,
+      title={When Does Continual Learning Require Learning}, 
+      author={Anne Harrington and Nayan Saxena and Michael Murphy and Anastasia Borovykh and Zeyu Yun and Sridhar Kamath and Ara Eindra Kyi and Trevor Darrell and Jitendra Malik and Yutong Bai},
+      year={2026},
+      eprint={2607.07847},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2607.07847}, 
+}
+```
