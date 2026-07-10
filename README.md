@@ -1,11 +1,17 @@
-# When Does Continual Learning Require Learning
+<h1 align="center">When Does Continual Learning Require Learning</h1>
 
-Anne Harrington¹\*, Nayan Saxena², Michael Murphy¹, Anastasia Borovykh³, Zeyu Yun¹,
-Sridhar Kamath², Ara Eindra Kyi², Trevor Darrell¹, Jitendra Malik¹, Yutong Bai¹\*
+<p align="center">
+  <b>Anne Harrington</b><sup>1*</sup> &nbsp;·&nbsp; <b>Nayan Saxena</b><sup>2</sup> &nbsp;·&nbsp; <b>Michael Murphy</b><sup>1</sup> &nbsp;·&nbsp; <b>Anastasia Borovykh</b><sup>3</sup> &nbsp;·&nbsp; <b>Zeyu Yun</b><sup>1</sup><br>
+  <b>Sridhar Kamath</b><sup>2</sup> &nbsp;·&nbsp; <b>Ara Eindra Kyi</b><sup>2</sup> &nbsp;·&nbsp; <b>Trevor Darrell</b><sup>1</sup> &nbsp;·&nbsp; <b>Jitendra Malik</b><sup>1</sup> &nbsp;·&nbsp; <b>Yutong Bai</b><sup>1*</sup>
+</p>
 
-UC Berkeley¹ &nbsp;·&nbsp; Independent² &nbsp;·&nbsp; Capital Fund Management³
+<p align="center">
+  <sup>1</sup> UC Berkeley &nbsp;·&nbsp; <sup>2</sup> Independent &nbsp;·&nbsp; <sup>3</sup> Capital Fund Management &nbsp;·&nbsp; <sup>*</sup> Equal contribution
+</p>
 
-\*Equal contribution
+<p align="center">
+  <a href="https://anneharrington.github.io/studying-cl/index.html"><b>🌐 Project Page</b></a> &nbsp;|&nbsp; <a href="https://arxiv.org/abs/2607.07847"><b>📄 arXiv</b></a>
+</p>
 
 Methods for continual learning in large language models — prompting, fine-tuning,
 reinforcement learning, and context compression — are usually studied in isolation.
@@ -13,9 +19,9 @@ We propose a framework that lets us evaluate them together on the same sequentia
 benchmarks, and find that the data and task conditions determine whether continual
 learning requires learning.
 
-[![A unified view of continual learning](assets/unified-cl-banner.png)](assets/unified-cl-banner.png)
-
-[Project Page](https://anneharrington.github.io/studying-cl/index.html) | [arXiv](https://arxiv.org/abs/2607.07847)
+<p align="center">
+  <a href="assets/unified-cl-banner.png"><img src="assets/unified-cl-banner.png" alt="A unified view of continual learning"></a>
+</p>
 
 * * *
 
